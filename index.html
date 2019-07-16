@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>MASH - THIS GAME FOR YOU</title>
+	<link rel="stylesheet" href="/themes/reset.css">
+	<link rel="stylesheet" href="/themes/main/main.css">
+	<link rel="icon" type="image/svg" href="/themes/main/icon.svg"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<script>
+		// начало
+		
+		// блоки которые нужно выводить
+		let values = {
+			items: [
+				{
+					ru: 'Партнер',
+					en: 'Partner',
+					type: 'text'
+				},
+				{
+					ru: 'Работа',
+					en: 'Job',
+					type: 'text'
+				},
+				{
+					ru: '# Детей',
+					en: '# of Kids',
+					type: 'num'
+				},
+				{
+					ru: 'Домашнее животное',
+					en: 'Pet',
+					type: 'text'
+				},
+				{
+					ru: 'Машина',
+					en: 'Сar',
+					type: 'text'
+				}
+			]
+		}
+		
+		// 
+		let houses = {
+			items: [
+				{
+					ru: 'хоромы',
+					en: 'mansion'
+				},
+				{
+					ru: 'квартира',
+					en: 'apartment'
+				},
+				{
+					ru: 'лачуга',
+					en: 'shack'
+				},
+				{
+					ru: 'жилой дом',
+					en: 'house'
+				}
+			]
+		}
+		
+		// поля ввода которые нужно выводить
+		let options = {
+			items: [
+				{
+					ru: 'Лучший',
+					en: 'The best'
+				},
+				{
+					ru: 'Средний',
+					en: 'Аverage'
+				},
+				{
+					ru: 'Худший',
+					en: 'Worst'
+				}
+			]
+		}
+		
+		// language 'ru' or 'en'
+		let language = 'en';
+		
+		/// Ошибки
+		let errors = { 
+			items: [
+				{
+					ru: ': простите, нужно заполнить все поля',
+					en: ': sorry, you need to fill in all fields',
+					code: '404'
+				}
+			]
+		}
+		
+		function ready () {
+			// начало блока "страница загружена"
+			
+			// переменные
+			let jsBOX  = document.getElementById('js-for-game');
+			
+			let showResult = () => {
+				console.log('showResult');
+			}
+
+			let addGameBox = () => {
+				let i = 1;
+				
+				for (let item of values.items) {
+					jsBOX.innerHTML += `
+					<div class="padding-item">
+						<div id="js-box-${i}" class="box-item">
+							<h1 id="box-h1-1">${item[language]}</h1>
+							<ul>
+								<li id="js-box-li-${i}">`; 
+								for (let item in options.items) {
+								document.getElementById('js-box-li-'+i).innerHTML += `
+									<input onchange="infoVariables(this)" id="${i}${item}" class="box-item-input" type="text" placeholder="${options.items[item][language]}" required>`;
+								}
+					jsBOX.innerHTML += `
+								</li>
+							</ul>
+						</div>
+					</div>`; 
+					i++;
+				}
+//				return infoVariables();
+			}
+			addGameBox();
+			
+			let messegShow = document.getElementById('js-messeg');
+			document.getElementById('go-js').onclick = function(e) {
+				e.preventDefault();
+				let allArr = infoErrors();
+				if (allArr == true) {
+					messegShow.style.display = 'none';
+					lengthArr();
+					fors();
+				} else {
+					errorShow('404');
+				}
+			};
+			
+			// Показать ошибки
+			let errorShow = (errorCode) => {
+				let jsText = document.getElementById('js-text');
+				
+				for (let i in errors.items) {
+					if (errors.items[i]['code'] === errorCode) {
+						messegShow.style.display = 'block';
+						jsText.innerHTML = errorCode+errors.items[i][language];
+					}
+				}
+				return true;
+				
+			};
+			// конец блока "страница загружена"
+		}
+		
+		document.addEventListener("DOMContentLoaded", ready);
+		
+		let elements = []; // элементы масива, поля
+		// формирование объекта
+		for (let i = 0; i < values.items.length+1; i++) {
+			if (i == 0) {
+				elements[i] = [
+					{
+						position: '00',
+						value: houses.items[0][language]
+					},
+					{
+						position: '01',
+						value: houses.items[1][language]
+					},
+					{
+						position: '02',
+						value: houses.items[2][language]
+					},
+					{
+						position: '03',
+						value: houses.items[3][language]
+					}
+				];
+			} else {
+				elements[i] = [];
+			}
+			if (i != 0) {
+				for (let c = 0; c < 3; c++) {
+					elements[i].push({});
+				}
+			}
+			
+		}
+		
+		let elements2 = [
+			[ // 0
+				{
+					position: '00',
+					value: 'm'
+				},
+				{
+					position: '01',
+					value: 'a'
+				},
+				{
+					position: '02',
+					value: 's'
+				},
+				{
+					position: '02',
+					value: 'h'
+				}
+			],
+			[ // 1
+				{
+					position: '10',
+					value: '10'
+				},
+				{
+					position: '11',
+					value: '11'
+				},
+				{
+					position: '12',
+					value: '12'
+				}
+			],
+			[ // 2
+				{
+					position: '20',
+					value: '20'
+				},
+				{
+					position: '21',
+					value: '21'
+				},
+				{
+					position: '22',
+					value: '22'
+				}
+			],
+			[ // 3
+				{
+					position: '30',
+					value: '30'
+				},
+				{
+					position: '31',
+					value: '31'
+				},
+				{
+					position: '32',
+					value: '32'
+				}
+			],
+			[ // 4
+				{
+					position: '40',
+					value: '40'
+				},
+				{
+					position: '41',
+					value: '41'
+				},
+				{
+					position: '42',
+					value: '42'
+				}
+			]
+		];
+		
+		// длина массива
+		let lengthArr = () => {
+//			console.log('lengthArr');
+			let g 			= 1,
+				lengthVar 	= 0;
+
+			for (let i in elements) {
+				for (let c in elements[i]) {
+					lengthVar += g;
+//					console.log(elements[i][c]);
+				}
+			}
+			return lengthVar;
+		};
+
+		let lengthArr2 = () => {
+			let g 			= 1,
+				lengthVar 	= 0;
+
+			for (let i in elements) {
+				for (let c in elements[i]) {
+					if (elements[i].length != 1) {
+						lengthVar += g;
+					}
+				}
+			}
+			return lengthVar;
+		};
+		
+		// выборка из массива
+		let fors = () => {
+			function randomInteger(min, max) {
+				var rand = Math.floor(Math.random() * (max - min + 1)) + min;
+				return rand;
+			}
+			
+			let g 			= 0, 
+				l 			= 1,
+				j			= 0;
+				randomInt 	= randomInteger(2, 20),
+				infoPos 	= randomInt,
+				nextArr 	= [],
+				infoPos2 	= 0,
+				allArr		= lengthArr();
+			
+			let arrLength = lengthArr();
+			
+			
+			for (let h = 1; h <= l; h++) {
+//					console.log("Итерация = "+h+"  infoPos2 = "+infoPos2);
+				for (let i in elements) {
+					for (let c in elements[i]) {
+						if (elements[i].length != 1) {++g; ++j;}
+//							console.log("infoPos2 = "+infoPos2+" g = "+g);
+						if (
+							elements[i].length != 1 & allArr === g		||
+							elements[i].length != 1 & infoPos2 === g	||
+							elements[i].length != 1 & randomInt === g 
+						   ) {
+//								console.log("DELL = "+g+" infoPos2 = "+infoPos2);
+							elements[i].splice(c, 1);
+						}
+					}
+				}
+				
+				if (randomInt > g+g & arrLength != 2) {
+					infoPos = Math.ceil(randomInt/g);
+				} else if (arrLength == 2) {
+					infoPos = randomInt - (randomInt-1); 
+				} else if (arrLength < randomInt) {
+					infoPos = randomInt - g;
+				}
+				
+				for (let i in elements) {
+					if (elements[i].length != 1) {
+						nextArr[i] = true;
+					} else {
+						nextArr[i] = false;
+					}
+				}		
+				
+				let arrFalse = nextArr.every( (val, i, arr) => val === false );
+				if (arrFalse != true) {
+					l++;
+				}
+//					console.log("l = "+l);	
+//					console.log("infoPos = "+infoPos+" randomInt = "+randomInt+" g = "+g);
+				g = 0; j = 0;
+				infoPos2 = infoPos;	
+				arrLength = lengthArr2(elements);
+			}
+			return showAll(randomInt, elements);
+		};
+		
+		// проверка на пустоту объктов
+		let infoErrors = () => {
+			let arrErrors = [];
+			
+			let isEmpty = (obj) => {
+				for (var key in obj) {
+    				return true;
+				}
+				return false;
+			};
+			
+			for (let i in elements) {
+				for (let item of elements[i]) {
+					arrErrors.push(isEmpty(item));
+				}
+			}
+			
+			let arrInfo = arrErrors.every( (val, i, arr) => val === true );
+			
+			if (arrInfo == true) {
+				return true;
+			} else {
+				return false;
+			}
+		};
+		
+		// создание объекта с переменными
+		let infoVariables = (element) => {
+			for (let i = 0; i < values.items.length; i++) {
+				z = i+1;
+				for (let c = 0; c < 3; c++) {
+					if (element.id == ''+z+c+'') {
+						if (element.value == '') {
+							elements[z][c] = {};
+						} else {
+							elements[z][c] = {position: ''+z+c+'', value: element.value};
+						}
+					}
+				}
+			}
+			infoErrors();
+		};
+		// конец
+	</script>
+</head>
+<body>
+	<div class="content">
+		<div class="box-mash-text">
+			<div>
+				<h1 class="text-h1-mash">
+					<span id="mash-m">M</span>
+					<span id="mash-a">A</span>
+					<span id="mash-s">S</span>
+					<span id="mash-h">H</span>
+				</h1>
+			</div>
+			<hr>
+			<h2  class="text-h2-mash">this game for you</h2>
+		</div>
+		<div id="js-messeg" class="messeg-style" style="display: none;"><p id="js-text"></p></div>
+		<div id="js-messeg-2" class="messeg-style-2" style="display: none;"><p id="js-text-2"></p></div>
+		<div class="box-items-for-game">
+			<form  action="">
+				<div id="js-for-game"></div>
+				<div class="button-js"><button type="submit" id="go-js">Go</button></div>
+			</form>
+		</div>
+	</div>
+	<script>
+		let messegShow2 = document.getElementById('js-messeg-2');
+		let showAll = (randomInt, elementsAll) => {
+			let textMes = {
+				items: [
+					{
+						ru: `Моей парой будет ${elementsAll[1][0]['value']} я буду работать ${elementsAll[2][0]['value']}. Мы будем жить в ${elementsAll[0][0]['value']}. У нас будет ${elementsAll[3][0]['value']} детей и я буде водить ${elementsAll[5][0]['value']}, нашим домашним животным будет ${elementsAll[4][0]['value']}.`,
+						en: `I will marry ${elementsAll[1][0]['value']} and i will work ${elementsAll[2][0]['value']}. We will live in a ${elementsAll[0][0]['value']}. We will have ${elementsAll[3][0]['value']} kids and i will drive a ${elementsAll[5][0]['value']} and be a Oue pet will be a ${elementsAll[4][0]['value']}.`
+					}
+				]
+			};
+			
+			let jsText = document.getElementById('js-text-2');
+			messegShow2.style.display = 'block';
+			
+			jsText.innerHTML = textMes.items[0][language];
+		};
+	</script>
+</body>
+</html>

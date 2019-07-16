@@ -1,0 +1,137 @@
+h1 {font-size: 1.3em;}
+h2 {font-size: .9em;}
+input, textarea {border: none; outline: none;}
+h1, h2, h3, p, span {
+	font-family: sans-serif;
+	
+} 
+
+.box-mash-text {
+	width: 200px;
+	margin: 0 auto;
+	text-align: center;
+	padding: 10px;
+	text-transform: uppercase;
+}
+
+.box-mash-text h1 span {
+	font-size: 2em;
+	font-weight: bold;
+	color: #66c4ab;
+}
+
+.text-h2-mash {
+	color: #e26f6f;
+	font-weight: bold;
+}
+
+.box-item-input {
+	border-bottom: solid 1px #66c4ab;
+}
+
+.box-items-for-game {
+	word-spacing: -5px;
+}
+
+.content {
+	padding: 20px;
+	width: 100%;
+}
+
+.box-item {
+	overflow: hidden;
+	word-spacing: 0px;
+	padding: 10px;
+	background: #ffffff;
+	text-align: center;
+	color: #464646;
+	border-radius: 10px;
+	border: solid 1px #cbcbcb;
+	min-height: 220px;
+}
+
+.padding-item {
+	display: inline-block;
+	align-items: center;
+	justify-content: center;
+	max-width: 33.3%;
+	padding: 10px;
+}
+
+.box-item-input {
+	width: 100%;
+	color: #464646;
+	background: #ffffff;
+	padding: 7px 10px;
+	margin: 10px 0;
+	border-radius: 4px;
+	border: solid 2px #dedede;
+}
+
+.box-item-input:focus {
+	border: solid 2px #66c4ab;
+}
+
+.button-js {
+	width: 100%;
+	text-align: center;
+	margin: 0 auto;
+}
+
+.button-js button {
+	padding: 10px;
+	width: 33.3%;
+	background: #66c4ab;
+	border: none;
+	color: #fff;
+	border-radius: 4px;
+	text-transform: uppercase;
+	font-weight: bold;
+}
+
+.button-js button:hover {
+	background: #71e0c2;
+}
+
+.messeg-style {
+	background: #f5fffc;
+	border-left: solid 5px #e26f6f;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 4px;
+/*	display: block !important;*/
+}
+
+.messeg-style-2 {
+	background: #f5fffc;
+	border-left: solid 5px #66c4ab;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 4px;
+/*	display: block !important;*/
+}
+
+::-webkit-input-placeholder {color:#919191;}
+::-moz-placeholder          {color:#464646;}
+:-moz-placeholder           {color:#464646;}
+:-ms-input-placeholder      {color:#464646;}
+
+@media (max-width: 780px)  {
+	.padding-item {
+		max-width: 50%;
+	}
+}
+
+@media (max-width: 540px)  {
+	.padding-item {
+		max-width: 100%;
+	}
+	.button-js {
+		width: auto;
+		margin: 10px;
+	}
+	.button-js button {
+		margin: 0px;
+		width: 100%;
+	}
+}
