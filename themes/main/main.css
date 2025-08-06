@@ -1,12 +1,22 @@
 h1 {font-size: 1.3em;}
-h2 {font-size: .9em;}
+h2 {
+	font-size: 1em;
+	font-weight: bold;
+}
 input, textarea {border: none; outline: none;}
-h1, h2, h3, p, span {
-	font-family: sans-serif;
-	
-} 
 
-.box-mash-text {
+body {
+	font-family: sans-serif;
+}
+
+.content {
+	padding: 20px;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+game-mash .mash-header {
 	width: 200px;
 	margin: 0 auto;
 	text-align: center;
@@ -14,31 +24,30 @@ h1, h2, h3, p, span {
 	text-transform: uppercase;
 }
 
-.box-mash-text h1 span {
+game-mash .mash-header h1 span {
 	font-size: 2em;
 	font-weight: bold;
 	color: #66c4ab;
 }
 
-.text-h2-mash {
+game-mash .mash-logo-h2 {
 	color: #e26f6f;
 	font-weight: bold;
 }
 
-.box-item-input {
-	border-bottom: solid 1px #66c4ab;
+game-mash #mash-game-box {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 20px;
 }
 
-.box-items-for-game {
-	word-spacing: -5px;
+game-mash #mash-btn {
+	margin: 20px auto;
+	display: flex;
+	justify-content: center;
 }
 
-.content {
-	padding: 20px;
-	width: 100%;
-}
-
-.box-item {
+game-mash .mash-game-box-wrapper {
 	overflow: hidden;
 	word-spacing: 0px;
 	padding: 10px;
@@ -50,15 +59,7 @@ h1, h2, h3, p, span {
 	min-height: 220px;
 }
 
-.padding-item {
-	display: inline-block;
-	align-items: center;
-	justify-content: center;
-	max-width: 33.3%;
-	padding: 10px;
-}
-
-.box-item-input {
+game-mash .mash-game-box-input {
 	width: 100%;
 	color: #464646;
 	background: #ffffff;
@@ -68,70 +69,55 @@ h1, h2, h3, p, span {
 	border: solid 2px #dedede;
 }
 
-.box-item-input:focus {
+game-mash .mash-game-box-input:focus {
 	border: solid 2px #66c4ab;
 }
 
-.button-js {
-	width: 100%;
-	text-align: center;
-	margin: 0 auto;
-}
-
-.button-js button {
+game-mash .btn {
 	padding: 10px;
 	width: 33.3%;
 	background: #66c4ab;
 	border: none;
 	color: #fff;
-	border-radius: 4px;
+	border-radius: 10px;
 	text-transform: uppercase;
 	font-weight: bold;
 }
 
-.button-js button:hover {
-	background: #71e0c2;
+game-mash .btn:not(:disabled):hover {
+	background: #307965;
 }
 
-.messeg-style {
-	background: #f5fffc;
-	border-left: solid 5px #e26f6f;
-	padding: 10px;
-	margin: 10px;
-	border-radius: 4px;
-/*	display: block !important;*/
+game-mash .btn:disabled {
+	opacity: 0.5;
 }
 
-.messeg-style-2 {
-	background: #f5fffc;
-	border-left: solid 5px #66c4ab;
-	padding: 10px;
-	margin: 10px;
-	border-radius: 4px;
-/*	display: block !important;*/
+game-mash #mash-title {
+	padding-bottom: 20px;
+}
+
+game-mash #mash-message {
+	padding: 20px;
+	border-radius: 10px;
+	color: #fff;
+	font-weight: bold;
+	min-height: 58px;
+	margin: 20px 0;
+}
+
+game-mash #mash-message.ERROR {
+    background: #e26f6f;
+}
+
+game-mash #mash-message.SUCCESS {
+	background: #66c4ab;
+}
+
+game-mash #mash-message.NOTE {
+	background: #222524;
 }
 
 ::-webkit-input-placeholder {color:#919191;}
 ::-moz-placeholder          {color:#464646;}
 :-moz-placeholder           {color:#464646;}
 :-ms-input-placeholder      {color:#464646;}
-
-@media (max-width: 780px)  {
-	.padding-item {
-		max-width: 50%;
-	}
-}
-
-@media (max-width: 540px)  {
-	.padding-item {
-		max-width: 100%;
-	}
-	.button-js {
-		width: auto;
-		margin: 10px;
-	}
-	.button-js button {
-		margin: 0px;
-		width: 100%;
-	}
-}

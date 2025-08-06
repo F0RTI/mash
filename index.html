@@ -3,454 +3,301 @@
 <head>
 	<meta charset="UTF-8">
 	<title>MASH - THIS GAME FOR YOU</title>
-	<link rel="stylesheet" href="/themes/reset.css">
-	<link rel="stylesheet" href="/themes/main/main.css">
-	<link rel="icon" type="image/svg" href="/themes/main/icon.svg"/>
+	<link rel="stylesheet" href="./themes/reset.css">
+	<link rel="stylesheet" href="./themes/main/main.css">
+	<link rel="icon" type="image/svg" href="./themes/main/icon.svg"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+	
 	<script>
-		// начало
-		
-		// блоки которые нужно выводить
-		let values = {
-			items: [
-				{
-					ru: 'Партнер',
-					en: 'Partner',
-					type: 'text'
-				},
-				{
-					ru: 'Работа',
-					en: 'Job',
-					type: 'text'
-				},
-				{
-					ru: '# Детей',
-					en: '# of Kids',
-					type: 'num'
-				},
-				{
-					ru: 'Домашнее животное',
-					en: 'Pet',
-					type: 'text'
-				},
-				{
-					ru: 'Машина',
-					en: 'Сar',
-					type: 'text'
-				}
-			]
+		const locale = {
+			ua: {
+				startGame: "Почати гру",
+				processing: "Обробка...",
+				partner: 'Партнер (хто)',
+				job: 'Працюватиму (ким)',
+				kids: 'Кількість дітей (число)',
+				pet: 'Домашня тварина',
+				car: 'Машина',
+				home: 'Будинок',
+				best: "Найкращий",
+				average: "Середній",
+				worst: "Найгірший",
+				errorValidation: "Заповніть всі поля",
+				mashInfo: "- Моєю парою буде {partner}.\n\n- Я працюватиму {job}.\n\n- Наш будинок це {home}.\n\n- У нас буде {kids} дітей.\n\n- Я водитиму {car}.\n\n- Наша домашня тварина буде {pet}" ,
+			},
+			en: {
+				startGame: "Start game",
+				processing: "Processing...",
+				partner: 'Partner',
+				job: 'Job {name}',
+				kids: 'Number of kids',
+				pet: 'Pet',
+				car: 'Car',
+				home: 'Home',
+				best: "The best",
+				worst: "Worst",
+				errorValidation: "Заповніть всі поля",
+				mashInfo: "- Моєю парою буде {partner}.\n\n- Я працюватиму {job}.\n\n- Наш будинок це {home}.\n\n- У нас буде {kids} дітей.\n\n- Я водитиму {car}.\n\n- Наша домашня тварина буде {pet}" ,
+			}
+		};
+
+		lan = 'ua';
+
+		const t = (key, params = {}) => {
+			let text = locale[lan][key] || key;
+
+			text = text.replace(/\{(\w+)\}/g, (match, p1) => 
+				params[p1] !== undefined ? params[p1] : match
+			);
+
+			return text.replace(/\n/g, '<br>');
 		}
 		
-		// 
-		let houses = {
-			items: [
-				{
-					ru: 'хоромы',
-					en: 'mansion'
+		class Mash extends HTMLElement {
+			gameBox = null;
+			btnStartGame = null;
+			messegeBox = null;
+			title = null;
+			errors = [];
+			messegeActions = {
+				ERROR: 'ERROR',
+				SUCCESS: 'SUCCESS',
+				NOTE: 'NOTE'
+			};
+			values = {};
+			resultData = {};
+			config = {
+				attributes: {
+					partner: {
+						text: t('partner'),
+						type: 'text'
+					},
+					job: {
+						text: t('job'),
+						type: 'text'
+					},
+					home: {
+						text: t('home'),
+						type: 'text'
+					},			
+					kids: {
+						text: t('kids'),
+						type: 'num'
+					},
+					pet: {
+						text: t('pet'),
+						type: 'text'
+					},
+					car: {
+						text: t('car'),
+						type: 'text'
+					}
 				},
-				{
-					ru: 'квартира',
-					en: 'apartment'
-				},
-				{
-					ru: 'лачуга',
-					en: 'shack'
-				},
-				{
-					ru: 'жилой дом',
-					en: 'house'
+				options: {
+					best: {
+						text: t('best')
+					},
+					average: {
+						text: t('average'),
+					},
+					worst: {
+						text: t('worst')
+					}
 				}
-			]
-		}
+			}
+			optionKeys = Object.keys(this.config.options);
 		
-		// поля ввода которые нужно выводить
-		let options = {
-			items: [
-				{
-					ru: 'Лучший',
-					en: 'The best'
-				},
-				{
-					ru: 'Средний',
-					en: 'Аverage'
-				},
-				{
-					ru: 'Худший',
-					en: 'Worst'
-				}
-			]
-		}
-		
-		// language 'ru' or 'en'
-		let language = 'en';
-		
-		/// Ошибки
-		let errors = { 
-			items: [
-				{
-					ru: ': простите, нужно заполнить все поля',
-					en: ': sorry, you need to fill in all fields',
-					code: '404'
-				}
-			]
-		}
-		
-		function ready () {
-			// начало блока "страница загружена"
-			
-			// переменные
-			let jsBOX  = document.getElementById('js-for-game');
-			
-			let showResult = () => {
-				console.log('showResult');
+			constructor() {
+				super();
+				this.gameBox = this.querySelector('#mash-game-box');
+				this.messegeBox = this.querySelector('#mash-message');
+				this.title = this.querySelector('#mash-title');
+				this.btnStartGame = this.querySelector('#mash-btn');
+				this.render();
+				this.loadValuesFromStorage();
+				this.initButtonsEvents();
+				this.initInputEvents();
 			}
 
-			let addGameBox = () => {
-				let i = 1;
+			render() {
+				this.btnStartGame.textContent = t('startGame');
+				this.gameBox.innerHTML = this.addBox();
+			}
+
+			loadValuesFromStorage() {
+				const stored = localStorage.getItem('mashValues');
+
+				if (stored) {
+					this.values = JSON.parse(stored);
+					const inputs = document.querySelectorAll('.mash-game-box-input');
+
+					inputs.forEach(input => {
+						const dataValue = input.getAttribute('data-value');
+						const dataIndex = input.getAttribute('data-index');
+						const key = this.optionKeys[dataIndex];
+
+						if (this.values[dataValue] && this.values[dataValue][key] !== undefined) {
+							input.value = this.values[dataValue][key];
+						}
+					});
+				}
+			}
+
+			saveValuesToStorage() {
+				localStorage.setItem('mashValues', JSON.stringify(this.values));
+			}
+
+			messeg(text = '', action = this.messegeActions.ERROR, isShowTitle = true, isShow = true) {
+				this.messegeBox.classList.remove(this.messegeActions.ERROR);
+				this.messegeBox.classList.remove(this.messegeActions.SUCCESS);
+				this.messegeBox.classList.remove(this.messegeActions.NOTE);
+
+				if (action === this.messegeActions.ERROR) {
+					this.messegeBox.classList.add(this.messegeActions.ERROR);
+
+					setTimeout(() => {
+						this.messegeBox.classList.remove(this.messegeActions.ERROR);
+						this.messegeBox.innerHTML = '';
+					}, 5000);
+				}
+				if (action === this.messegeActions.SUCCESS) this.messegeBox.classList.add(this.messegeActions.SUCCESS);
+				if (action === this.messegeActions.NOTE) this.messegeBox.classList.add(this.messegeActions.NOTE);
+
+				this.messegeBox.innerHTML = `${isShowTitle ? `${this.messegeActions[action]}: ` : ''}${text}`;
+			}
+
+			isValid() {
+				return Object.entries(this.values).every((value, index) => {
+					if (Object.keys(value[1]).length === 0 || Object.values(value[1]).includes('')) return false;
+					else return true;
+				});
+			}
+
+			initButtonsEvents() {
+				this.onBtnClickStartGame = this.onBtnClickStartGame.bind(this);
+				this.btnStartGame.addEventListener('click', this.onBtnClickStartGame);
+			}
+
+			initInputEvents() {
+				const inputs = document.querySelectorAll('.mash-game-box-input');
+				inputs.forEach(input => {
+					input.addEventListener('input', () => {
+						this.getValues();
+						this.saveValuesToStorage();
+					});
+				});
+			}
+
+			onBtnClickStartGame() {
+				this.btnStartGame.disabled = true;
+				this.btnStartGame.textContent = t('processing');
 				
-				for (let item of values.items) {
-					jsBOX.innerHTML += `
-					<div class="padding-item">
-						<div id="js-box-${i}" class="box-item">
-							<h1 id="box-h1-1">${item[language]}</h1>
+				setTimeout(() => {
+					this.btnStartGame.disabled = false;
+					this.btnStartGame.textContent = t('startGame');
+					this.getValues();
+
+					if (this.isValid()) {
+						this.result()
+					} else {
+						this.messeg(t('errorValidation'), this.messegeActions.ERROR, true, false);
+					}
+				}, 150);
+			}
+
+			getValues () {
+				const inputs = document.querySelectorAll(`.mash-game-box-input`);
+
+				inputs.forEach(input => {
+					const dataValue = input.getAttribute('data-value');
+					const dataIndex = input.getAttribute('data-index');
+
+					if (!this.values[dataValue]) this.values[dataValue] = {};
+
+					const key = this.optionKeys[dataIndex];
+					this.values[dataValue][key] = input.value || '';
+				});
+			}
+
+			getRandomOptionKey() {
+				const randomIndex = Math.floor(Math.random() * this.optionKeys.length);
+				return this.optionKeys[randomIndex];
+			}
+
+			addInput(i, key) {
+				let html = '';
+
+				Object.entries(this.config.options).map((value, index) => {
+					html += `<input data-value="${key}" id="${i}${index}" data-index="${index}" class="mash-game-box-input" type="text" placeholder="${value[1].text}" required/>`;
+				})
+
+				return html;
+			}
+
+			addBox() {
+				let html = '';
+
+				Object.entries(this.config.attributes).map((value, index) => {
+					html += `
+					<div class="mash-game-box-wrapper">
+						<div class="mash-game-box-item">
+							<h2 class="mash-game-box-header">${value[1].text}</h2>
 							<ul>
-								<li id="js-box-li-${i}">`; 
-								for (let item in options.items) {
-								document.getElementById('js-box-li-'+i).innerHTML += `
-									<input onchange="infoVariables(this)" id="${i}${item}" class="box-item-input" type="text" placeholder="${options.items[item][language]}" required>`;
-								}
-					jsBOX.innerHTML += `
+								<li clss="mash-game-box-li">
+									${this.addInput(index, value[0])}
 								</li>
 							</ul>
 						</div>
-					</div>`; 
-					i++;
-				}
-//				return infoVariables();
+					</div>
+					`;
+				});
+
+				return html;
 			}
-			addGameBox();
-			
-			let messegShow = document.getElementById('js-messeg');
-			document.getElementById('go-js').onclick = function(e) {
-				e.preventDefault();
-				let allArr = infoErrors();
-				if (allArr == true) {
-					messegShow.style.display = 'none';
-					lengthArr();
-					fors();
-				} else {
-					errorShow('404');
-				}
-			};
-			
-			// Показать ошибки
-			let errorShow = (errorCode) => {
-				let jsText = document.getElementById('js-text');
-				
-				for (let i in errors.items) {
-					if (errors.items[i]['code'] === errorCode) {
-						messegShow.style.display = 'block';
-						jsText.innerHTML = errorCode+errors.items[i][language];
-					}
-				}
-				return true;
-				
-			};
-			// конец блока "страница загружена"
+
+			result() {
+				Object.entries(this.values).forEach((value, index) => {
+					this.resultData[value[0]] = this.getRandomOptionKey();
+				});
+
+				const messegData = Object.keys(this.values).reduce((acc, key) => {
+					acc[key] = this.values[key][this.resultData[key]] || 'unknown';
+					return acc;
+				}, {});
+
+				this.messeg(t('mashInfo', messegData), this.messegeActions.SUCCESS, false);
+			}
+		}
+
+		function ready () {
+			customElements.define('game-mash', Mash);
 		}
 		
 		document.addEventListener("DOMContentLoaded", ready);
-		
-		let elements = []; // элементы масива, поля
-		// формирование объекта
-		for (let i = 0; i < values.items.length+1; i++) {
-			if (i == 0) {
-				elements[i] = [
-					{
-						position: '00',
-						value: houses.items[0][language]
-					},
-					{
-						position: '01',
-						value: houses.items[1][language]
-					},
-					{
-						position: '02',
-						value: houses.items[2][language]
-					},
-					{
-						position: '03',
-						value: houses.items[3][language]
-					}
-				];
-			} else {
-				elements[i] = [];
-			}
-			if (i != 0) {
-				for (let c = 0; c < 3; c++) {
-					elements[i].push({});
-				}
-			}
-			
-		}
-		
-		let elements2 = [
-			[ // 0
-				{
-					position: '00',
-					value: 'm'
-				},
-				{
-					position: '01',
-					value: 'a'
-				},
-				{
-					position: '02',
-					value: 's'
-				},
-				{
-					position: '02',
-					value: 'h'
-				}
-			],
-			[ // 1
-				{
-					position: '10',
-					value: '10'
-				},
-				{
-					position: '11',
-					value: '11'
-				},
-				{
-					position: '12',
-					value: '12'
-				}
-			],
-			[ // 2
-				{
-					position: '20',
-					value: '20'
-				},
-				{
-					position: '21',
-					value: '21'
-				},
-				{
-					position: '22',
-					value: '22'
-				}
-			],
-			[ // 3
-				{
-					position: '30',
-					value: '30'
-				},
-				{
-					position: '31',
-					value: '31'
-				},
-				{
-					position: '32',
-					value: '32'
-				}
-			],
-			[ // 4
-				{
-					position: '40',
-					value: '40'
-				},
-				{
-					position: '41',
-					value: '41'
-				},
-				{
-					position: '42',
-					value: '42'
-				}
-			]
-		];
-		
-		// длина массива
-		let lengthArr = () => {
-//			console.log('lengthArr');
-			let g 			= 1,
-				lengthVar 	= 0;
-
-			for (let i in elements) {
-				for (let c in elements[i]) {
-					lengthVar += g;
-//					console.log(elements[i][c]);
-				}
-			}
-			return lengthVar;
-		};
-
-		let lengthArr2 = () => {
-			let g 			= 1,
-				lengthVar 	= 0;
-
-			for (let i in elements) {
-				for (let c in elements[i]) {
-					if (elements[i].length != 1) {
-						lengthVar += g;
-					}
-				}
-			}
-			return lengthVar;
-		};
-		
-		// выборка из массива
-		let fors = () => {
-			function randomInteger(min, max) {
-				var rand = Math.floor(Math.random() * (max - min + 1)) + min;
-				return rand;
-			}
-			
-			let g 			= 0, 
-				l 			= 1,
-				j			= 0;
-				randomInt 	= randomInteger(2, 20),
-				infoPos 	= randomInt,
-				nextArr 	= [],
-				infoPos2 	= 0,
-				allArr		= lengthArr();
-			
-			let arrLength = lengthArr();
-			
-			
-			for (let h = 1; h <= l; h++) {
-//					console.log("Итерация = "+h+"  infoPos2 = "+infoPos2);
-				for (let i in elements) {
-					for (let c in elements[i]) {
-						if (elements[i].length != 1) {++g; ++j;}
-//							console.log("infoPos2 = "+infoPos2+" g = "+g);
-						if (
-							elements[i].length != 1 & allArr === g		||
-							elements[i].length != 1 & infoPos2 === g	||
-							elements[i].length != 1 & randomInt === g 
-						   ) {
-//								console.log("DELL = "+g+" infoPos2 = "+infoPos2);
-							elements[i].splice(c, 1);
-						}
-					}
-				}
-				
-				if (randomInt > g+g & arrLength != 2) {
-					infoPos = Math.ceil(randomInt/g);
-				} else if (arrLength == 2) {
-					infoPos = randomInt - (randomInt-1); 
-				} else if (arrLength < randomInt) {
-					infoPos = randomInt - g;
-				}
-				
-				for (let i in elements) {
-					if (elements[i].length != 1) {
-						nextArr[i] = true;
-					} else {
-						nextArr[i] = false;
-					}
-				}		
-				
-				let arrFalse = nextArr.every( (val, i, arr) => val === false );
-				if (arrFalse != true) {
-					l++;
-				}
-//					console.log("l = "+l);	
-//					console.log("infoPos = "+infoPos+" randomInt = "+randomInt+" g = "+g);
-				g = 0; j = 0;
-				infoPos2 = infoPos;	
-				arrLength = lengthArr2(elements);
-			}
-			return showAll(randomInt, elements);
-		};
-		
-		// проверка на пустоту объктов
-		let infoErrors = () => {
-			let arrErrors = [];
-			
-			let isEmpty = (obj) => {
-				for (var key in obj) {
-    				return true;
-				}
-				return false;
-			};
-			
-			for (let i in elements) {
-				for (let item of elements[i]) {
-					arrErrors.push(isEmpty(item));
-				}
-			}
-			
-			let arrInfo = arrErrors.every( (val, i, arr) => val === true );
-			
-			if (arrInfo == true) {
-				return true;
-			} else {
-				return false;
-			}
-		};
-		
-		// создание объекта с переменными
-		let infoVariables = (element) => {
-			for (let i = 0; i < values.items.length; i++) {
-				z = i+1;
-				for (let c = 0; c < 3; c++) {
-					if (element.id == ''+z+c+'') {
-						if (element.value == '') {
-							elements[z][c] = {};
-						} else {
-							elements[z][c] = {position: ''+z+c+'', value: element.value};
-						}
-					}
-				}
-			}
-			infoErrors();
-		};
-		// конец
 	</script>
 </head>
 <body>
 	<div class="content">
-		<div class="box-mash-text">
-			<div>
-				<h1 class="text-h1-mash">
-					<span id="mash-m">M</span>
-					<span id="mash-a">A</span>
-					<span id="mash-s">S</span>
-					<span id="mash-h">H</span>
-				</h1>
+		
+		<game-mash>
+			<div id="mash-title">
+				<div class="mash-header">
+					<div>
+						<h1 class="text-h1-mash">
+							<span id="mash-m">M</span>
+							<span id="mash-a">A</span>
+							<span id="mash-s">S</span>
+							<span id="mash-h">H</span>
+						</h1>
+					</div>
+					<hr>
+					<h2  class="mash-logo-h2">this game for you</h2>
+				</div>
 			</div>
-			<hr>
-			<h2  class="text-h2-mash">this game for you</h2>
-		</div>
-		<div id="js-messeg" class="messeg-style" style="display: none;"><p id="js-text"></p></div>
-		<div id="js-messeg-2" class="messeg-style-2" style="display: none;"><p id="js-text-2"></p></div>
-		<div class="box-items-for-game">
-			<form  action="">
-				<div id="js-for-game"></div>
-				<div class="button-js"><button type="submit" id="go-js">Go</button></div>
-			</form>
-		</div>
+			<div id="mash-game-box"></div>
+			<div id="mash-message"></div>
+			<button type="button" id="mash-btn" class="btn">Start game</button>
+		</game-mash>
 	</div>
-	<script>
-		let messegShow2 = document.getElementById('js-messeg-2');
-		let showAll = (randomInt, elementsAll) => {
-			let textMes = {
-				items: [
-					{
-						ru: `Моей парой будет ${elementsAll[1][0]['value']} я буду работать ${elementsAll[2][0]['value']}. Мы будем жить в ${elementsAll[0][0]['value']}. У нас будет ${elementsAll[3][0]['value']} детей и я буде водить ${elementsAll[5][0]['value']}, нашим домашним животным будет ${elementsAll[4][0]['value']}.`,
-						en: `I will marry ${elementsAll[1][0]['value']} and i will work ${elementsAll[2][0]['value']}. We will live in a ${elementsAll[0][0]['value']}. We will have ${elementsAll[3][0]['value']} kids and i will drive a ${elementsAll[5][0]['value']} and be a Oue pet will be a ${elementsAll[4][0]['value']}.`
-					}
-				]
-			};
-			
-			let jsText = document.getElementById('js-text-2');
-			messegShow2.style.display = 'block';
-			
-			jsText.innerHTML = textMes.items[0][language];
-		};
-	</script>
 </body>
 </html>
