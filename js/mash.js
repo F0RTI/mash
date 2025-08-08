@@ -159,13 +159,13 @@ class Mash extends HTMLElement {
         localStorage.setItem('mashValues', JSON.stringify(this.values));
     }
 
-    messege(text = '', action = this.messegeActions.ERROR, isShowTitle = true) {
+    messege(text = '', action = this.messegeActions.ERROR, isShowTitle = true, isHideMassage = true) {
         clearTimeout(this.clearMessageTimeout);
     
         this.messegeBox.className = '';
         this.messegeBox.classList.add(action);
     
-        if (action === this.messegeActions.ERROR) {
+        if (isHideMassage) {
             this.clearMessageTimeout = setTimeout(() => {
                 this.messegeBox.classList.remove(action);
                 this.messegeBox.innerHTML = '';
@@ -213,7 +213,7 @@ class Mash extends HTMLElement {
             if (this.isValid()) {
                 this.result()
             } else {
-                this.messege(t('error.validation'), this.messegeActions.ERROR, true, false);
+                this.messege(t('error.validation'), this.messegeActions.ERROR);
             }
         }, 150);
     }
@@ -224,11 +224,13 @@ class Mash extends HTMLElement {
         setTimeout(() => {
             this.btnPocessting(this.btnСleanInpt, 'clean', false);
             this.inputsActions((input) => input.value = '');
-            this.messege(t('success.clean'), this.messegeActions.SUCCESS, true, false);
+            this.getValues();
+            this.saveValuesToStorage();
+            this.messege(t('success.clean'), this.messegeActions.SUCCESS);
         }, 150);
     }
 
-    getValues () {
+    getValues() {
         this.inputsActions((input, dataValue, dataIndex) => {
             if (!this.values[dataValue]) this.values[dataValue] = {};
 
@@ -283,7 +285,7 @@ class Mash extends HTMLElement {
             return acc;
         }, {});
 
-        this.messege(t('mashInfo', messegData), this.messegeActions.SUCCESS, false);
+        this.messege(t('mashInfo', messegData), this.messegeActions.SUCCESS, false, false);
     }
 }
 
