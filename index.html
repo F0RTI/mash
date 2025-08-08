@@ -1,280 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ua">
 <head>
 	<meta charset="UTF-8">
 	<title>MASH - THIS GAME FOR YOU</title>
+	<link rel="icon" type="image/svg" href="./themes/main/icon.svg"/>
 	<link rel="stylesheet" href="./themes/reset.css">
 	<link rel="stylesheet" href="./themes/main/main.css">
-	<link rel="icon" type="image/svg" href="./themes/main/icon.svg"/>
+	<script src="./js/mash.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	
-	<script>
-		const locale = {
-			ua: {
-				startGame: "Почати гру",
-				processing: "Обробка...",
-				partner: 'Партнер (хто)',
-				job: 'Працюватиму (ким)',
-				kids: 'Кількість дітей (число)',
-				pet: 'Домашня тварина',
-				car: 'Машина',
-				home: 'Будинок',
-				best: "Найкращий",
-				average: "Середній",
-				worst: "Найгірший",
-				errorValidation: "Заповніть всі поля",
-				mashInfo: "- Моєю парою буде {partner}.\n\n- Я працюватиму {job}.\n\n- Наш будинок це {home}.\n\n- У нас буде {kids} дітей.\n\n- Я водитиму {car}.\n\n- Наша домашня тварина буде {pet}" ,
-			},
-			en: {
-				startGame: "Start game",
-				processing: "Processing...",
-				partner: 'Partner',
-				job: 'Job {name}',
-				kids: 'Number of kids',
-				pet: 'Pet',
-				car: 'Car',
-				home: 'Home',
-				best: "The best",
-				worst: "Worst",
-				errorValidation: "Заповніть всі поля",
-				mashInfo: "- Моєю парою буде {partner}.\n\n- Я працюватиму {job}.\n\n- Наш будинок це {home}.\n\n- У нас буде {kids} дітей.\n\n- Я водитиму {car}.\n\n- Наша домашня тварина буде {pet}" ,
-			}
-		};
-
-		lan = 'ua';
-
-		const t = (key, params = {}) => {
-			let text = locale[lan][key] || key;
-
-			text = text.replace(/\{(\w+)\}/g, (match, p1) => 
-				params[p1] !== undefined ? params[p1] : match
-			);
-
-			return text.replace(/\n/g, '<br>');
-		}
-		
-		class Mash extends HTMLElement {
-			gameBox = null;
-			btnStartGame = null;
-			messegeBox = null;
-			title = null;
-			errors = [];
-			messegeActions = {
-				ERROR: 'ERROR',
-				SUCCESS: 'SUCCESS',
-				NOTE: 'NOTE'
-			};
-			values = {};
-			resultData = {};
-			config = {
-				attributes: {
-					partner: {
-						text: t('partner'),
-						type: 'text'
-					},
-					job: {
-						text: t('job'),
-						type: 'text'
-					},
-					home: {
-						text: t('home'),
-						type: 'text'
-					},			
-					kids: {
-						text: t('kids'),
-						type: 'num'
-					},
-					pet: {
-						text: t('pet'),
-						type: 'text'
-					},
-					car: {
-						text: t('car'),
-						type: 'text'
-					}
-				},
-				options: {
-					best: {
-						text: t('best')
-					},
-					average: {
-						text: t('average'),
-					},
-					worst: {
-						text: t('worst')
-					}
-				}
-			}
-			optionKeys = Object.keys(this.config.options);
-		
-			constructor() {
-				super();
-				this.gameBox = this.querySelector('#mash-game-box');
-				this.messegeBox = this.querySelector('#mash-message');
-				this.title = this.querySelector('#mash-title');
-				this.btnStartGame = this.querySelector('#mash-btn');
-				this.render();
-				this.loadValuesFromStorage();
-				this.initButtonsEvents();
-				this.initInputEvents();
-			}
-
-			render() {
-				this.btnStartGame.textContent = t('startGame');
-				this.gameBox.innerHTML = this.addBox();
-			}
-
-			loadValuesFromStorage() {
-				const stored = localStorage.getItem('mashValues');
-
-				if (stored) {
-					this.values = JSON.parse(stored);
-					const inputs = document.querySelectorAll('.mash-game-box-input');
-
-					inputs.forEach(input => {
-						const dataValue = input.getAttribute('data-value');
-						const dataIndex = input.getAttribute('data-index');
-						const key = this.optionKeys[dataIndex];
-
-						if (this.values[dataValue] && this.values[dataValue][key] !== undefined) {
-							input.value = this.values[dataValue][key];
-						}
-					});
-				}
-			}
-
-			saveValuesToStorage() {
-				localStorage.setItem('mashValues', JSON.stringify(this.values));
-			}
-
-			messeg(text = '', action = this.messegeActions.ERROR, isShowTitle = true, isShow = true) {
-				this.messegeBox.classList.remove(this.messegeActions.ERROR);
-				this.messegeBox.classList.remove(this.messegeActions.SUCCESS);
-				this.messegeBox.classList.remove(this.messegeActions.NOTE);
-
-				if (action === this.messegeActions.ERROR) {
-					this.messegeBox.classList.add(this.messegeActions.ERROR);
-
-					setTimeout(() => {
-						this.messegeBox.classList.remove(this.messegeActions.ERROR);
-						this.messegeBox.innerHTML = '';
-					}, 5000);
-				}
-				if (action === this.messegeActions.SUCCESS) this.messegeBox.classList.add(this.messegeActions.SUCCESS);
-				if (action === this.messegeActions.NOTE) this.messegeBox.classList.add(this.messegeActions.NOTE);
-
-				this.messegeBox.innerHTML = `${isShowTitle ? `${this.messegeActions[action]}: ` : ''}${text}`;
-			}
-
-			isValid() {
-				return Object.entries(this.values).every((value, index) => {
-					if (Object.keys(value[1]).length === 0 || Object.values(value[1]).includes('')) return false;
-					else return true;
-				});
-			}
-
-			initButtonsEvents() {
-				this.onBtnClickStartGame = this.onBtnClickStartGame.bind(this);
-				this.btnStartGame.addEventListener('click', this.onBtnClickStartGame);
-			}
-
-			initInputEvents() {
-				const inputs = document.querySelectorAll('.mash-game-box-input');
-				inputs.forEach(input => {
-					input.addEventListener('input', () => {
-						this.getValues();
-						this.saveValuesToStorage();
-					});
-				});
-			}
-
-			onBtnClickStartGame() {
-				this.btnStartGame.disabled = true;
-				this.btnStartGame.textContent = t('processing');
-				
-				setTimeout(() => {
-					this.btnStartGame.disabled = false;
-					this.btnStartGame.textContent = t('startGame');
-					this.getValues();
-
-					if (this.isValid()) {
-						this.result()
-					} else {
-						this.messeg(t('errorValidation'), this.messegeActions.ERROR, true, false);
-					}
-				}, 150);
-			}
-
-			getValues () {
-				const inputs = document.querySelectorAll(`.mash-game-box-input`);
-
-				inputs.forEach(input => {
-					const dataValue = input.getAttribute('data-value');
-					const dataIndex = input.getAttribute('data-index');
-
-					if (!this.values[dataValue]) this.values[dataValue] = {};
-
-					const key = this.optionKeys[dataIndex];
-					this.values[dataValue][key] = input.value || '';
-				});
-			}
-
-			getRandomOptionKey() {
-				const randomIndex = Math.floor(Math.random() * this.optionKeys.length);
-				return this.optionKeys[randomIndex];
-			}
-
-			addInput(i, key) {
-				let html = '';
-
-				Object.entries(this.config.options).map((value, index) => {
-					html += `<input data-value="${key}" id="${i}${index}" data-index="${index}" class="mash-game-box-input" type="text" placeholder="${value[1].text}" required/>`;
-				})
-
-				return html;
-			}
-
-			addBox() {
-				let html = '';
-
-				Object.entries(this.config.attributes).map((value, index) => {
-					html += `
-					<div class="mash-game-box-wrapper">
-						<div class="mash-game-box-item">
-							<h2 class="mash-game-box-header">${value[1].text}</h2>
-							<ul>
-								<li clss="mash-game-box-li">
-									${this.addInput(index, value[0])}
-								</li>
-							</ul>
-						</div>
-					</div>
-					`;
-				});
-
-				return html;
-			}
-
-			result() {
-				Object.entries(this.values).forEach((value, index) => {
-					this.resultData[value[0]] = this.getRandomOptionKey();
-				});
-
-				const messegData = Object.keys(this.values).reduce((acc, key) => {
-					acc[key] = this.values[key][this.resultData[key]] || 'unknown';
-					return acc;
-				}, {});
-
-				this.messeg(t('mashInfo', messegData), this.messegeActions.SUCCESS, false);
-			}
-		}
-
-		function ready () {
-			customElements.define('game-mash', Mash);
-		}
-		
-		document.addEventListener("DOMContentLoaded", ready);
-	</script>
 </head>
 <body>
 	<div class="content">
@@ -282,21 +15,20 @@
 		<game-mash>
 			<div id="mash-title">
 				<div class="mash-header">
-					<div>
-						<h1 class="text-h1-mash">
-							<span id="mash-m">M</span>
-							<span id="mash-a">A</span>
-							<span id="mash-s">S</span>
-							<span id="mash-h">H</span>
-						</h1>
-					</div>
+					<h1 class="text-h1-mash">
+						<span id="mash-m">M</span>
+						<span id="mash-a">A</span>
+						<span id="mash-s">S</span>
+						<span id="mash-h">H</span>
+					</h1>
 					<hr>
 					<h2  class="mash-logo-h2">this game for you</h2>
 				</div>
 			</div>
+			<button type="button" id="mash-btn-clean" class="btn btn-danger">Очистити поля вводу</button>
 			<div id="mash-game-box"></div>
 			<div id="mash-message"></div>
-			<button type="button" id="mash-btn" class="btn">Start game</button>
+			<button type="button" id="mash-btn-start" class="btn">Почати гру</button>
 		</game-mash>
 	</div>
 </body>

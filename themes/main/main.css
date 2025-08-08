@@ -9,6 +9,11 @@ body {
 	font-family: sans-serif;
 }
 
+game-mash {
+	display: flex;
+	flex-direction: column;
+}
+
 .content {
 	padding: 20px;
 	width: 100%;
@@ -56,7 +61,6 @@ game-mash .mash-game-box-wrapper {
 	color: #464646;
 	border-radius: 10px;
 	border: solid 1px #cbcbcb;
-	min-height: 220px;
 }
 
 game-mash .mash-game-box-input {
@@ -92,6 +96,22 @@ game-mash .btn:disabled {
 	opacity: 0.5;
 }
 
+game-mash .btn-danger {
+	background: #e26f6f;
+}
+
+game-mash .btn-danger:not(:disabled):hover {
+	background: #b74c4c;
+}
+
+game-mash #mash-btn-clean {
+	margin-bottom: 20px;
+}
+
+game-mash #mash-btn-start, game-mash #mash-btn-clean {
+	align-self: center;
+}
+
 game-mash #mash-title {
 	padding-bottom: 20px;
 }
@@ -99,18 +119,19 @@ game-mash #mash-title {
 game-mash #mash-message {
 	padding: 20px;
 	border-radius: 10px;
-	color: #fff;
 	font-weight: bold;
 	min-height: 58px;
 	margin: 20px 0;
 }
 
 game-mash #mash-message.ERROR {
-    background: #e26f6f;
+    background: #f3aeae;
+	color: #b55353;
 }
 
 game-mash #mash-message.SUCCESS {
-	background: #66c4ab;
+	background: #b7ddd3;
+	color: #2c7f69;
 }
 
 game-mash #mash-message.NOTE {
@@ -121,3 +142,14 @@ game-mash #mash-message.NOTE {
 ::-moz-placeholder          {color:#464646;}
 :-moz-placeholder           {color:#464646;}
 :-ms-input-placeholder      {color:#464646;}
+
+
+@media screen and (max-width: 700px) {
+	game-mash #mash-game-box {
+		grid-template-columns: 1fr;
+	}
+	
+	game-mash .btn {
+		width: 100%;
+	}
+}
